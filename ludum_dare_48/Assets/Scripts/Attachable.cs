@@ -16,6 +16,7 @@ public class Attachable : MonoBehaviour
         IsAttachable = true;
         Body = GetComponentInParent<Rigidbody2D>();
         Hinge = GetComponentInParent<HingeJoint2D>();
+        Hinge.connectedBody = Body;
     }
 
     private void OnTriggerEnter2D( Collider2D col ) {
@@ -30,5 +31,10 @@ public class Attachable : MonoBehaviour
         if( col.name == "AttachRange" ){
             col.GetComponentInParent<PlayerController>().AttachableInRange = null;
         }
+    }
+
+    private void SetAttached(){
+        IsAttachable = true;
+        gameObject.SendMessageUpwards( "SetNewLights" );
     }
 }

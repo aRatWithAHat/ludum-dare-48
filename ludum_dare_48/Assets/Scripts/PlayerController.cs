@@ -15,6 +15,11 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float m_accelerationForce;
     [SerializeField] private float m_currentLoad; // TODO: Remove Serialization
 
+    private ParticleSystem m_thrusterTop;
+    private ParticleSystem m_thrusterLeft;
+    private ParticleSystem m_thrusterBot;
+    private ParticleSystem m_thrusterRight;
+
     [Header("Lifeline")]
 
     [SerializeField] private Lifeline m_lifelinePrefab;
@@ -50,6 +55,17 @@ public class PlayerController : MonoBehaviour
 
     private void SetupSub(){
         m_currentLoad = 0;
+        m_thrusterTop = transform.Find("ThrusterParticulesTop").GetComponent<ParticleSystem>();
+        m_thrusterLeft = transform.Find("ThrusterParticulesLeft").GetComponent<ParticleSystem>();
+        m_thrusterBot = transform.Find("ThrusterParticulesBot").GetComponent<ParticleSystem>();
+        m_thrusterRight = transform.Find("ThrusterParticulesRight").GetComponent<ParticleSystem>();
+
+        m_thrusterTop.Stop();
+        m_thrusterLeft.Stop(); 
+        m_thrusterBot.Stop(); 
+        m_thrusterRight.Stop();
+
+
         m_reelingLifeline  = false;
         CurrentLifeline = Instantiate( m_lifelinePrefab );
         CurrentLifeline.GenerateLifeline( GameObject.Find( "LifelineStart" ).GetComponent<Rigidbody2D>() , m_body, 3 );
@@ -69,6 +85,48 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         m_movementInput = new Vector2( Input.GetAxis( m_movementInputXRef ), Input.GetAxis( m_movementInputYRef )  );
+
+        if( m_movementInput.x < 0 && m_thrusterRight.isStopped ){
+            m_thrusterRight.Play();
+            if( m_thrusterLeft.isPlaying ){
+                m_thrusterLeft.Stop();
+            }
+        }
+        else if( m_movementInput.x > 0 && m_thrusterLeft.isStopped ){
+            m_thrusterLeft.Play();
+            if( m_thrusterRight.isPlaying ){
+                m_thrusterRight.Stop();
+            }
+        }
+        else if( m_movementInput.x == 0){
+            if( m_thrusterLeft.isPlaying ){
+                m_thrusterLeft.Stop();
+            }
+            if( m_thrusterRight.isPlaying ){
+                m_thrusterRight.Stop();
+            }
+        }
+
+        if( m_movementInput.y < 0 && m_thrusterTop.isStopped ){
+            m_thrusterTop.Play();
+            if( m_thrusterBot.isPlaying ){
+                m_thrusterBot.Stop();
+            }
+        }
+        else if( m_movementInput.y > 0 && m_thrusterBot.isStopped ){
+            m_thrusterBot.Play();
+            if( m_thrusterTop.isPlaying ){
+                m_thrusterTop.Stop();
+            }
+        }
+        else if( m_movementInput.y == 0){
+            if( m_thrusterBot.isPlaying ){
+                m_thrusterBot.Stop();
+            }
+            if( m_thrusterTop.isPlaying ){
+                m_thrusterTop.Stop();
+            }
+        }
 
         Vector3 mouseOnScreen = Camera.main.ScreenToWorldPoint( Input.mousePosition );
         float angle = EntityUtils.GetAngleBetweenPositions( transform.position, mouseOnScreen );
