@@ -49,8 +49,10 @@ MonoBehaviour:
   m_endHook: {fileID: 0}
   m_lifelineSegPrefab: {fileID: 80408663116874782, guid: 017a525737040174d85b0d819ca0603b,
     type: 3}
-  m_numLinks: 10
-  m_lifelineSegList: []
+  m_numLinks: 35
+  m_changeLengthTime: 5
+  m_activeLifelineSegList: []
+  m_hiddenLifelineSegList: []
 --- !u!50 &3990887660251805466
 Rigidbody2D:
   serializedVersion: 4
