@@ -1120,6 +1120,7 @@ MonoBehaviour:
   m_thrusterClip: {fileID: 0}
   m_lifelinePrefab: {fileID: 3990887660251805468, guid: eaaa11d1f0363b7409228c12facb4699,
     type: 3}
+  m_emerLifelinePrefab: {fileID: 0}
   m_currentLifeline: {fileID: 0}
   m_attachableInRange: {fileID: 0}
   m_flarePrefab: {fileID: 6758589931855622710, guid: e7c34609bb96dc1488bc5743e19833af,

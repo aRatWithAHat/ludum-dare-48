@@ -49,7 +49,7 @@ MonoBehaviour:
   m_endHook: {fileID: 0}
   m_lifelineSegPrefab: {fileID: 80408663116874782, guid: 017a525737040174d85b0d819ca0603b,
     type: 3}
-  m_numLinks: 35
+  m_numLinks: 20
   m_changeLengthSound: {fileID: 8300000, guid: 7b3b651d268fc19419857f64e768a51f, type: 3}
   m_activeLifelineSegList: []
   m_hiddenLifelineSegList: []

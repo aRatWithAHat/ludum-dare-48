@@ -14,8 +14,6 @@ public class PlayerController : MonoBehaviour
 
     [Header("Movement")]
     [SerializeField] private float m_accelerationForce;
-    [SerializeField] private float m_currentLoad; // TODO: Remove Serialization
-
     private ParticleSystem m_thrusterTop;
     private ParticleSystem m_thrusterLeft;
     private ParticleSystem m_thrusterBot;
@@ -41,6 +39,19 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float m_throwForce;
     [SerializeField] private float m_cooldownFlare;
     private bool m_canFlare;
+    public bool CanFlare { 
+        get => m_canFlare; 
+        set{
+            m_canFlare = value;
+            if( m_canFlare ){
+                UIController.inst.FlareDisplay.SetText( "FLARE //: <color=#ffc216>[LEFT CLICK]</color>" );
+            }
+            else{
+                UIController.inst.FlareDisplay.SetText( "FLARE //: RELOADING" );
+            }
+            
+        }
+    }
 
     // Player Inputs
     private Vector2 m_movementInput;
@@ -51,11 +62,14 @@ public class PlayerController : MonoBehaviour
     private string m_lifelineLengthControlRef = "Mouse ScrollWheel";
 
     private void Start(){
+
+        
         m_sprite = transform.Find( "Sprite" ).GetComponent<SpriteRenderer>();
         m_flareLauncher = transform.Find( "FlareLauncher" );
         m_flareSpawnPos = m_flareLauncher.Find( "FlareSpawn" );
         m_body = GetComponent<Rigidbody2D>();
         m_audio = GetComponent<AudioSource>();
+        GetComponent<HingeJoint2D>().connectedBody = m_body;
 
         m_thrusterTop = transform.Find("ThrusterParticulesTop").GetComponent<ParticleSystem>();
         m_thrusterLeft = transform.Find("ThrusterParticulesLeft").GetComponent<ParticleSystem>();
@@ -77,30 +91,25 @@ public class PlayerController : MonoBehaviour
         m_thrusterBot.Stop(); 
         m_thrusterRight.Stop();
 
-        SetupShip();
+        this.enabled = false;
     }
 
-    private void SetupShip(){
-
-        MissionControlAlertController.instance.QueueNewAlert("//: LAUNCHING DRN-" + 100 );
-        MissionControlAlertController.instance.QueueNewAlert("//: NEW DIRECTIVE: RETRIEVE MIA BLACK BOX");
-        MissionControlAlertController.instance.QueueNewAlert("//: PROPOSAL: FOLLOW DRN UNITS WRECKAGES TO ESTIMATED TARGET LOCATION");
-
-        UIController.SetText( UIController.inst.DroneNameDisplay, "DRN-100" );
+    public  void SetupNewRun( int nb ){
+        UIController.inst.DroneNameDisplay.SetText( "DRN-" + nb );
 
         m_reelingLifeline  = false;
-        m_canFlare = true;
+        CanFlare = true;
         CurrentLifeline = Instantiate( m_lifelinePrefab );
         CurrentLifeline.GenerateLifeline( GameObject.Find( "LifelineStart" ).GetComponent<Rigidbody2D>() , m_body, 3 );
     }
 
     private IEnumerator DeployFlare(){
-        m_canFlare = false;
+        CanFlare = false;
         Flare flare = Instantiate( m_flarePrefab, m_flareSpawnPos.transform.position, m_flareLauncher.transform.rotation ).GetComponent<Flare>();
         flare.Activate( m_body, 4 );
         
         yield return new WaitForSeconds( m_cooldownFlare );
-        m_canFlare = true;
+        CanFlare = true;
     }
 
     private void Update()
@@ -173,7 +182,7 @@ public class PlayerController : MonoBehaviour
             
         }
 
-        if( Input.GetButtonDown( m_fireFlareRef ) && m_canFlare ){
+        if( Input.GetButtonDown( m_fireFlareRef ) && CanFlare ){
             StartCoroutine( DeployFlare() );
         }
 
@@ -205,7 +214,7 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate() {
         if( m_movementInput != Vector2.zero ){
-            m_body.AddRelativeForce( m_movementInput * ( m_accelerationForce - m_currentLoad ) );
+            m_body.AddRelativeForce( m_movementInput * ( m_accelerationForce ) );
         }  
     }
 }

@@ -44,6 +44,13 @@ public class Lifeline : MonoBehaviour
         SetupLastLifelineSegment();
 
         transform.parent = m_endHook.transform;
+
+        UIController.inst.LifeLineSlider.maxValue = m_numLinks - 1;
+        UIController.inst.LifeLineSlider.minValue = 1;
+        UIController.inst.LifeLineSlider.value = m_hiddenLifelineSegList.Count;
+
+        UIController.inst.LifelineText.SetText( "LIFELINE //: <color=#ffc216>[MOUSE WHEEL]</color>" );
+        UIController.inst.LifelineSubText.SetText( "DISCONNECT //: <color=#ffc216>[SPACEBAR]</color>" );
     }
 
     public void TryAddLifelineSegment(){
@@ -51,7 +58,7 @@ public class Lifeline : MonoBehaviour
             AudioSource.PlayClipAtPoint( m_changeLengthSound, m_endHook.transform.position );
             m_activeLifelineSegList.Add( m_hiddenLifelineSegList[0] );
             m_hiddenLifelineSegList.RemoveAt( 0 );
-            m_activeLifelineSegList[ m_activeLifelineSegList.Count - 1 ].transform.rotation =  m_activeLifelineSegList[ m_activeLifelineSegList.Count - 2 ].transform.rotation;
+            // m_activeLifelineSegList[ m_activeLifelineSegList.Count - 1 ].transform.rotation =  m_activeLifelineSegList[ m_activeLifelineSegList.Count - 2 ].transform.rotation;
             m_activeLifelineSegList[ m_activeLifelineSegList.Count - 1 ].Hinge.connectedBody = m_activeLifelineSegList[ m_activeLifelineSegList.Count - 2 ].GetComponent<Rigidbody2D>();
 
             m_activeLifelineSegList[ m_activeLifelineSegList.Count - 1 ].gameObject.SetActive( true );
@@ -59,6 +66,8 @@ public class Lifeline : MonoBehaviour
             SetupLastLifelineSegment();
 
             m_endHook.GetComponent<HingeJoint2D>().connectedBody =  m_activeLifelineSegList[ m_activeLifelineSegList.Count - 1 ].GetComponent<Rigidbody2D>();
+            m_activeLifelineSegList[ m_activeLifelineSegList.Count - 1 ].GetComponent<Rigidbody2D>().velocity = m_endHook.velocity;
+            UIController.inst.LifeLineSlider.value = m_hiddenLifelineSegList.Count;
         }
         else{
             Debug.Log( "Max Length Achieved" );
@@ -74,6 +83,7 @@ public class Lifeline : MonoBehaviour
             SetupLastLifelineSegment();
 
             m_endHook.GetComponent<HingeJoint2D>().connectedBody =  m_activeLifelineSegList[ m_activeLifelineSegList.Count - 1 ].GetComponent<Rigidbody2D>();
+            UIController.inst.LifeLineSlider.value = m_hiddenLifelineSegList.Count;
         }
         else{
             Debug.Log( "Min Length Achieved" );

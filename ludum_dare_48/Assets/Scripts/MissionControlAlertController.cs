@@ -27,7 +27,8 @@ public class MissionControlAlertController : MonoBehaviour
             StartCoroutine( DisplayMessage( message ) );
         }
     }
-    public void OverrideDisplayedMessage( string message ){
+
+    public void OverrideDisplayedMessage( string message, bool destroyQueue = false ){
         StopAllCoroutines();
         /* Debug.Log("Old _queuedMessages");
         for( var i = 0; i < _queuedMessages.Count; i++ ){
@@ -39,7 +40,9 @@ public class MissionControlAlertController : MonoBehaviour
         } 
         m_queuedMessages.Clear();
         m_queuedMessages.Add( message );
-        m_queuedMessages.AddRange( backupList );
+        if( !destroyQueue ){
+            m_queuedMessages.AddRange( backupList );
+        }
         /* Debug.Log("New _queuedMessages");
         for( var i = 0; i < _queuedMessages.Count; i++ ){
             Debug.Log(i + " : " + _queuedMessages[i]);
