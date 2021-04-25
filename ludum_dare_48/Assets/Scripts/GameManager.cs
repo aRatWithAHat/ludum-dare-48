@@ -79,7 +79,6 @@ public class GameManager : MonoBehaviour
         if( oldObj.IsBlackBox ){
             MissionControlAlertController.instance.OverrideDisplayedMessage("//: BLACK BOX SECURED BY LIFELINE");
             MissionControlAlertController.instance.QueueNewAlert("//: DEEP DIVE COMPLETED");
-            
         }
         else{
             CurrentNextSalvage = m_salvagesTrail[0];

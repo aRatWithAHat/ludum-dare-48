@@ -30,14 +30,21 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Lifeline m_emerLifelinePrefab;
     [SerializeField] private Lifeline m_currentLifeline; // TODO: Remove Serialization
     public Lifeline CurrentLifeline { get => m_currentLifeline; set => m_currentLifeline = value; }
+    [SerializeField] private Lifeline m_currentEmerLifeline; // TODO: Remove Serialization
+    public Lifeline CurrentEmerLifeline { get => m_currentEmerLifeline; set => m_currentEmerLifeline = value; }
     [SerializeField] private Attachable m_attachableInRange;
     private bool m_reelingLifeline;
+
+    [SerializeField] private bool m_attachedToMainLifeline;
     public Attachable AttachableInRange { get => m_attachableInRange; set => m_attachableInRange = value; }
 
     [Header("Flare")]
     [SerializeField] private GameObject m_flarePrefab;
     [SerializeField] private float m_throwForce;
     [SerializeField] private float m_cooldownFlare;
+
+    [SerializeField] private float m_internalBatteryTime;
+    private float m_internalBatteryleft;
     private bool m_canFlare;
     public bool CanFlare { 
         get => m_canFlare; 
@@ -52,6 +59,8 @@ public class PlayerController : MonoBehaviour
             
         }
     }
+
+    public bool AttachedToMainLifeline { get => m_attachedToMainLifeline; set => m_attachedToMainLifeline = value; }
 
     // Player Inputs
     private Vector2 m_movementInput;
@@ -101,6 +110,7 @@ public class PlayerController : MonoBehaviour
         CanFlare = true;
         CurrentLifeline = Instantiate( m_lifelinePrefab );
         CurrentLifeline.GenerateLifeline( GameObject.Find( "LifelineStart" ).GetComponent<Rigidbody2D>() , m_body, 3 );
+        AttachedToMainLifeline = true;
     }
 
     private IEnumerator DeployFlare(){
@@ -174,19 +184,37 @@ public class PlayerController : MonoBehaviour
         float angle = EntityUtils.GetAngleBetweenPositions( transform.position, mouseOnScreen );
         m_flareLauncher.rotation = Quaternion.Euler( new Vector3( 0f, 0f, angle - 90 ) );
 
-        if( Input.GetButtonDown( m_interactRef ) && AttachableInRange ){
+        if( Input.GetButtonDown( m_interactRef ) && AttachableInRange && AttachedToMainLifeline ){
             CurrentLifeline.SetNewHooks( null, AttachableInRange.Body );
             CurrentLifeline = Instantiate( m_lifelinePrefab );
             CurrentLifeline.GenerateLifeline( AttachableInRange.Body, m_body, 3 );
             AttachableInRange.SetAttached();
-            
+        }
+        else if( Input.GetButtonDown( m_interactRef ) && !AttachableInRange && AttachedToMainLifeline ){
+            DetachFromMainLifeline();
+        }
+        else if( Input.GetButtonDown( m_interactRef ) && AttachableInRange  && !AttachedToMainLifeline){
+            if( AttachableInRange.IsStandalone ){
+                AttachToMainLifeline();
+            }
+            else if( !CurrentEmerLifeline ){
+                CurrentEmerLifeline = Instantiate( m_emerLifelinePrefab );
+                CurrentEmerLifeline.GenerateLifeline( AttachableInRange.Body, m_body, 3, true );
+                UIController.inst.LifelineSubText.enabled = true;
+            }
+        }
+        else if( Input.GetButtonDown( m_interactRef ) && !AttachableInRange && CurrentEmerLifeline ){
+            GetComponent<HingeJoint2D>().connectedBody = m_body;
+            CurrentEmerLifeline.StartHook.GetComponent<HingeJoint2D>().connectedBody = CurrentEmerLifeline.StartHook;
+
+            Destroy( CurrentEmerLifeline.gameObject );
         }
 
         if( Input.GetButtonDown( m_fireFlareRef ) && CanFlare ){
             StartCoroutine( DeployFlare() );
         }
 
-        if( !m_reelingLifeline ){
+        if( !m_reelingLifeline && AttachedToMainLifeline ){
             if( Input.GetAxis( m_lifelineLengthControlRef ) < 0f ){
                 m_reelingLifeline = true;
                 StartCoroutine( ReelInLifeline() );
@@ -210,6 +238,18 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds( 0.5f );
         m_reelingLifeline = false;
         
+    }
+
+    private void DetachFromMainLifeline(){
+        AttachedToMainLifeline = false;
+        CurrentLifeline.DetachEnd();
+        UIController.inst.LifelineSubText.enabled = false;
+    }
+
+    private void AttachToMainLifeline(){
+        AttachedToMainLifeline = true;
+        UIController.inst.LifelineSubText.enabled = true;
+        CurrentLifeline.ReattachToEnd( m_body );
     }
 
     private void FixedUpdate() {

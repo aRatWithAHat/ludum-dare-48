@@ -87,6 +87,7 @@ public class Salvage : MonoBehaviour
             m_lightsources[i].color = new Color( 0.7603404f, 1f, 0.6273585f ); // Oof
         }
         if( !IsBlackBox ){
+            MissionControlAlertController.instance.QueueNewAlert( "//: WAKING CLOSEST UNIT AND MARKING WITH FLARE" );
             StartCoroutine( ShotFlareTowardNextObjective() );
         }
         

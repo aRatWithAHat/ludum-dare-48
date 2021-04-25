@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 3990887660251805466}
   - component: {fileID: 3990887660251805469}
   m_Layer: 0
-  m_Name: Lifeline
+  m_Name: EmerLifeline
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -47,10 +47,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_startHook: {fileID: 0}
   m_endHook: {fileID: 0}
-  m_lifelineSegPrefab: {fileID: 80408663116874782, guid: 017a525737040174d85b0d819ca0603b,
+  m_lifelineSegPrefab: {fileID: 80408663116874782, guid: e2372ac66874d674babec85ec672258c,
     type: 3}
-  m_numLinks: 35
+  m_numLinks: 5
   m_changeLengthSound: {fileID: 8300000, guid: 7b3b651d268fc19419857f64e768a51f, type: 3}
+  m_standaloneAttachPoint: {fileID: 0}
   m_activeLifelineSegList: []
   m_hiddenLifelineSegList: []
 --- !u!50 &3990887660251805466

@@ -10,11 +10,13 @@ public class Attachable : MonoBehaviour
     public HingeJoint2D Hinge { get => m_hinge; set => m_hinge = value; }
     private bool m_isAttachable;
     public bool IsAttachable { get => m_isAttachable; set => m_isAttachable = value; }
+    public bool IsStandalone { get => m_isStandalone; set => m_isStandalone = value; }
 
     [SerializeField] private AudioClip m_attachSound;
     [SerializeField] private AudioClip m_activationSound;
 
     [SerializeField] private FakePromptController m_prompts;
+    [SerializeField] private bool m_isStandalone;
 
     void Awake()
     {
@@ -25,9 +27,9 @@ public class Attachable : MonoBehaviour
     }
 
     private void OnTriggerEnter2D( Collider2D col ) {
-        Debug.Log( "Can attach" );
         if( col.name == "AttachRange" && IsAttachable ){
             m_prompts.SetPromptVisible( "promptAttach" );
+            UIController.inst.LifelineSubText.enabled = false;
             col.GetComponentInParent<PlayerController>().AttachableInRange = this;
         }
         else{
@@ -36,9 +38,12 @@ public class Attachable : MonoBehaviour
     }
 
     private void OnTriggerExit2D( Collider2D col ) {
-        Debug.Log( "Cannot attach" );
         if( col.name == "AttachRange" ){
             m_prompts.SetPromptInvisible();
+            if( GameManager.instance.Player.AttachedToMainLifeline ){
+                UIController.inst.LifelineSubText.enabled = true;
+            }
+            
             col.GetComponentInParent<PlayerController>().AttachableInRange = null;
         }
     }
@@ -46,10 +51,15 @@ public class Attachable : MonoBehaviour
     public void SetAttached(){
         IsAttachable = false;
         AudioSource.PlayClipAtPoint( m_attachSound, transform.position + new Vector3( 0, 0, -5 ) );
-        AudioSource.PlayClipAtPoint( m_activationSound, transform.position + new Vector3( 0, 0, -5 ) );
-        m_prompts.SetPromptInvisible();
         MissionControlAlertController.instance.QueueNewAlert( "//: LIFELINE CONNECTION SUCCESSFUL" );
-        MissionControlAlertController.instance.QueueNewAlert( "//: WAKING CLOSEST UNIT AND MARKING WITH FLARE" );
-        gameObject.SendMessageUpwards( "SetAttachedToMainLifeline" );
+        m_prompts.SetPromptInvisible();
+
+        if( !IsStandalone ){
+            AudioSource.PlayClipAtPoint( m_activationSound, transform.position + new Vector3( 0, 0, -5 ) );
+            gameObject.SendMessageUpwards( "SetAttachedToMainLifeline" );
+        }
+        
+        
+        
     }
 }

@@ -11,14 +11,17 @@ public class Lifeline : MonoBehaviour
     [SerializeField] private GameObject m_lifelineSegPrefab;
     [SerializeField] private int m_numLinks;
     [SerializeField] private AudioClip m_changeLengthSound;
+    [SerializeField] private GameObject m_standaloneAttachPoint;
 
     [SerializeField] private List<LifelineSegment> m_activeLifelineSegList = new List<LifelineSegment>();
     [SerializeField] private List<LifelineSegment> m_hiddenLifelineSegList = new List<LifelineSegment>();
 
-    public void GenerateLifeline( Rigidbody2D start, Rigidbody2D end, int SetLengthTo = -1 ){
-        m_startHook = start;
+    public Rigidbody2D StartHook { get => m_startHook; set => m_startHook = value; }
+
+    public void GenerateLifeline( Rigidbody2D start, Rigidbody2D end, int SetLengthTo = -1, bool isEmer = false ){
+        StartHook = start;
         m_endHook = end;
-        Rigidbody2D previousBod = m_startHook;
+        Rigidbody2D previousBod = StartHook;
         for( int i = 0; i <= m_numLinks; i++ ){
             GameObject newSegment = Instantiate( m_lifelineSegPrefab );
             newSegment.name = "Seg " + i;
@@ -38,7 +41,9 @@ public class Lifeline : MonoBehaviour
         }
 
         m_endHook.GetComponent<HingeJoint2D>().connectedBody =  m_activeLifelineSegList[ m_activeLifelineSegList.Count - 1 ].GetComponent<Rigidbody2D>();
-        m_endHook.GetComponent<PlayerController>().CurrentLifeline = this;
+        if( !isEmer ){
+            m_endHook.GetComponent<PlayerController>().CurrentLifeline = this;
+        }
 
         m_activeLifelineSegList[0].Lightsource.enabled = false;
         SetupLastLifelineSegment();
@@ -107,9 +112,9 @@ public class Lifeline : MonoBehaviour
 
     public void SetNewHooks( Rigidbody2D originHook, Rigidbody2D targetHook){
         if( originHook ){
-            m_startHook.GetComponent<HingeJoint2D>().connectedBody = null;
-            m_startHook = originHook;
-            m_activeLifelineSegList[ 0 ].Hinge.connectedBody = m_startHook;
+            StartHook.GetComponent<HingeJoint2D>().connectedBody = null;
+            StartHook = originHook;
+            m_activeLifelineSegList[ 0 ].Hinge.connectedBody = StartHook;
         }
         if( targetHook ){
             m_endHook.GetComponent<HingeJoint2D>().connectedBody = null;
@@ -120,5 +125,27 @@ public class Lifeline : MonoBehaviour
                 m_endHook.GetComponent<PlayerController>().CurrentLifeline = this;
             }
         }
+    }
+
+    public void DetachEnd(){
+        HingeJoint2D newEnd = Instantiate( m_standaloneAttachPoint, transform.position, transform.rotation ).GetComponent<HingeJoint2D>();
+
+        m_endHook.GetComponent<HingeJoint2D>().connectedBody = m_endHook;
+
+        m_endHook = newEnd.GetComponent<Rigidbody2D>();
+        m_endHook.GetComponent<HingeJoint2D>().connectedBody = m_activeLifelineSegList[ m_activeLifelineSegList.Count - 1 ].GetComponent<Rigidbody2D>();
+
+        UIController.inst.LifeLineSlider.gameObject.SetActive( false );
+
+    }
+    public void ReattachToEnd( Rigidbody2D body ){
+        body.GetComponent<HingeJoint2D>().connectedBody = m_activeLifelineSegList[ m_activeLifelineSegList.Count - 1 ].GetComponent<Rigidbody2D>();
+        Destroy( m_endHook.gameObject );
+        m_endHook = body;
+
+        UIController.inst.LifeLineSlider.gameObject.SetActive( true );
+        UIController.inst.LifeLineSlider.maxValue = m_numLinks - 1;
+        UIController.inst.LifeLineSlider.minValue = 1;
+        UIController.inst.LifeLineSlider.value = m_hiddenLifelineSegList.Count;
     }
 }

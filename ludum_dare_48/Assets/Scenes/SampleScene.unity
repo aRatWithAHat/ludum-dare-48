@@ -3510,6 +3510,12 @@ PrefabInstance:
       propertyPath: m_thrusterClip
       value: 
       objectReference: {fileID: 8300000, guid: ca6b463804beeef41aedc62f006f77ce, type: 3}
+    - target: {fileID: 8152516983320348200, guid: 58136157662e3024badd6b1166c2776b,
+        type: 3}
+      propertyPath: m_emerLifelinePrefab
+      value: 
+      objectReference: {fileID: 3990887660251805468, guid: 689ec76673fa4234fa51d80d91d18f62,
+        type: 3}
     - target: {fileID: 8152516983320348203, guid: 58136157662e3024badd6b1166c2776b,
         type: 3}
       propertyPath: m_LocalPosition.x

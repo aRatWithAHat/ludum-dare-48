@@ -51,6 +51,8 @@ MonoBehaviour:
     type: 3}
   m_numLinks: 20
   m_changeLengthSound: {fileID: 8300000, guid: 7b3b651d268fc19419857f64e768a51f, type: 3}
+  m_standaloneAttachPoint: {fileID: 3549110939244168481, guid: d70d79cb3bec6d64ab5c69dffb8f4218,
+    type: 3}
   m_activeLifelineSegList: []
   m_hiddenLifelineSegList: []
 --- !u!50 &3990887660251805466

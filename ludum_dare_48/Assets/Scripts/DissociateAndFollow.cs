@@ -11,6 +11,12 @@ public class DissociateAndFollow : MonoBehaviour
     }
 
     private void Update(){
-        transform.position = targetTransform.position;
+        if( targetTransform ){
+            transform.position = targetTransform.position;
+        }
+        else{
+            Destroy( gameObject );
+        }
+        
     }
 }
