@@ -41,5 +41,8 @@ public class Flare : MonoBehaviour
         DOTween.To( ()=> m_lightsource.pointLightInnerRadius, x=> m_lightsource.pointLightInnerRadius = x, 0f, m_extinguishLength );
         DOTween.To( ()=> m_lightsource.pointLightOuterRadius, x=> m_lightsource.pointLightOuterRadius = x, 3f, m_extinguishLength );
         yield return DOTween.To( ()=> m_lightsource.intensity, x=> m_lightsource.intensity = x, 0.5f, m_extinguishLength ).WaitForCompletion();
+        yield return new WaitForSeconds( 10 );
+        yield return GetComponent<SpriteRenderer>().DOColor( Color.clear, 0.5f ).WaitForCompletion();
+        Destroy( gameObject );
     }
 }

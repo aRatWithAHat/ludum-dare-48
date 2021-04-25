@@ -10,6 +10,7 @@ public class PlayerController : MonoBehaviour
     private Transform m_flareLauncher;
     private Transform m_flareSpawnPos;
     private Rigidbody2D m_body;
+    private AudioSource m_audio;
 
     [Header("Movement")]
     [SerializeField] private float m_accelerationForce;
@@ -19,10 +20,16 @@ public class PlayerController : MonoBehaviour
     private ParticleSystem m_thrusterLeft;
     private ParticleSystem m_thrusterBot;
     private ParticleSystem m_thrusterRight;
+    private AudioSource m_thrusterTopAudio;
+    private AudioSource m_thrusterLeftAudio;
+    private AudioSource m_thrusterBotAudio;
+    private AudioSource m_thrusterRightAudio;
+    [SerializeField] private AudioClip m_thrusterClip;
 
     [Header("Lifeline")]
 
     [SerializeField] private Lifeline m_lifelinePrefab;
+    [SerializeField] private Lifeline m_emerLifelinePrefab;
     [SerializeField] private Lifeline m_currentLifeline; // TODO: Remove Serialization
     public Lifeline CurrentLifeline { get => m_currentLifeline; set => m_currentLifeline = value; }
     [SerializeField] private Attachable m_attachableInRange;
@@ -32,9 +39,8 @@ public class PlayerController : MonoBehaviour
     [Header("Flare")]
     [SerializeField] private GameObject m_flarePrefab;
     [SerializeField] private float m_throwForce;
-    [SerializeField] private int m_startingFlares;
     [SerializeField] private float m_cooldownFlare;
-    private int m_remainingFlares;
+    private bool m_canFlare;
 
     // Player Inputs
     private Vector2 m_movementInput;
@@ -44,42 +50,57 @@ public class PlayerController : MonoBehaviour
     private string m_fireFlareRef = "Fire1";
     private string m_lifelineLengthControlRef = "Mouse ScrollWheel";
 
-    private void Awake(){
+    private void Start(){
         m_sprite = transform.Find( "Sprite" ).GetComponent<SpriteRenderer>();
         m_flareLauncher = transform.Find( "FlareLauncher" );
         m_flareSpawnPos = m_flareLauncher.Find( "FlareSpawn" );
         m_body = GetComponent<Rigidbody2D>();
+        m_audio = GetComponent<AudioSource>();
 
-        SetupSub();
-    }
-
-    private void SetupSub(){
-        m_currentLoad = 0;
         m_thrusterTop = transform.Find("ThrusterParticulesTop").GetComponent<ParticleSystem>();
         m_thrusterLeft = transform.Find("ThrusterParticulesLeft").GetComponent<ParticleSystem>();
         m_thrusterBot = transform.Find("ThrusterParticulesBot").GetComponent<ParticleSystem>();
         m_thrusterRight = transform.Find("ThrusterParticulesRight").GetComponent<ParticleSystem>();
+        
+        m_thrusterTopAudio = m_thrusterTop.GetComponent<AudioSource>();
+        m_thrusterLeftAudio = m_thrusterLeft.GetComponent<AudioSource>();
+        m_thrusterBotAudio = m_thrusterBot.GetComponent<AudioSource>();
+        m_thrusterRightAudio = m_thrusterRight.GetComponent<AudioSource>();
+
+        m_thrusterTopAudio.clip = m_thrusterClip;
+        m_thrusterLeftAudio.clip = m_thrusterClip;
+        m_thrusterBotAudio.clip = m_thrusterClip;
+        m_thrusterRightAudio.clip = m_thrusterClip;
 
         m_thrusterTop.Stop();
         m_thrusterLeft.Stop(); 
         m_thrusterBot.Stop(); 
         m_thrusterRight.Stop();
 
+        SetupShip();
+    }
+
+    private void SetupShip(){
+
+        MissionControlAlertController.instance.QueueNewAlert("//: LAUNCHING DRN-" + 100 );
+        MissionControlAlertController.instance.QueueNewAlert("//: NEW DIRECTIVE: RETRIEVE MIA BLACK BOX");
+        MissionControlAlertController.instance.QueueNewAlert("//: PROPOSAL: FOLLOW DRN UNITS WRECKAGES TO ESTIMATED TARGET LOCATION");
+
+        UIController.SetText( UIController.inst.DroneNameDisplay, "DRN-100" );
 
         m_reelingLifeline  = false;
+        m_canFlare = true;
         CurrentLifeline = Instantiate( m_lifelinePrefab );
         CurrentLifeline.GenerateLifeline( GameObject.Find( "LifelineStart" ).GetComponent<Rigidbody2D>() , m_body, 3 );
-
-        m_remainingFlares = m_startingFlares;
     }
 
     private IEnumerator DeployFlare(){
-        m_remainingFlares --;
-
+        m_canFlare = false;
         Flare flare = Instantiate( m_flarePrefab, m_flareSpawnPos.transform.position, m_flareLauncher.transform.rotation ).GetComponent<Flare>();
         flare.Activate( m_body, 4 );
-
+        
         yield return new WaitForSeconds( m_cooldownFlare );
+        m_canFlare = true;
     }
 
     private void Update()
@@ -88,43 +109,55 @@ public class PlayerController : MonoBehaviour
 
         if( m_movementInput.x < 0 && m_thrusterRight.isStopped ){
             m_thrusterRight.Play();
+            m_thrusterRightAudio.Play();
             if( m_thrusterLeft.isPlaying ){
                 m_thrusterLeft.Stop();
+                m_thrusterLeftAudio.Stop();
             }
         }
         else if( m_movementInput.x > 0 && m_thrusterLeft.isStopped ){
             m_thrusterLeft.Play();
+            m_thrusterLeftAudio.Play();
             if( m_thrusterRight.isPlaying ){
                 m_thrusterRight.Stop();
+                m_thrusterRightAudio.Stop();
             }
         }
         else if( m_movementInput.x == 0){
             if( m_thrusterLeft.isPlaying ){
                 m_thrusterLeft.Stop();
+                m_thrusterLeftAudio.Stop();
             }
             if( m_thrusterRight.isPlaying ){
                 m_thrusterRight.Stop();
+                m_thrusterRightAudio.Stop();
             }
         }
 
         if( m_movementInput.y < 0 && m_thrusterTop.isStopped ){
             m_thrusterTop.Play();
+            m_thrusterTopAudio.Play();
             if( m_thrusterBot.isPlaying ){
                 m_thrusterBot.Stop();
+                m_thrusterBotAudio.Stop();
             }
         }
         else if( m_movementInput.y > 0 && m_thrusterBot.isStopped ){
             m_thrusterBot.Play();
+            m_thrusterBotAudio.Play();
             if( m_thrusterTop.isPlaying ){
                 m_thrusterTop.Stop();
+                m_thrusterTopAudio.Stop();
             }
         }
         else if( m_movementInput.y == 0){
             if( m_thrusterBot.isPlaying ){
                 m_thrusterBot.Stop();
+                m_thrusterBotAudio.Stop();
             }
             if( m_thrusterTop.isPlaying ){
                 m_thrusterTop.Stop();
+                m_thrusterTopAudio.Stop();
             }
         }
 
@@ -133,14 +166,14 @@ public class PlayerController : MonoBehaviour
         m_flareLauncher.rotation = Quaternion.Euler( new Vector3( 0f, 0f, angle - 90 ) );
 
         if( Input.GetButtonDown( m_interactRef ) && AttachableInRange ){
-            Debug.Log("Attaching");
             CurrentLifeline.SetNewHooks( null, AttachableInRange.Body );
             CurrentLifeline = Instantiate( m_lifelinePrefab );
             CurrentLifeline.GenerateLifeline( AttachableInRange.Body, m_body, 3 );
+            AttachableInRange.SetAttached();
             
         }
 
-        if( Input.GetButtonDown( m_fireFlareRef ) && m_remainingFlares > 0 ){
+        if( Input.GetButtonDown( m_fireFlareRef ) && m_canFlare ){
             StartCoroutine( DeployFlare() );
         }
 

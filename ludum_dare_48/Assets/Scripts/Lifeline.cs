@@ -10,7 +10,7 @@ public class Lifeline : MonoBehaviour
     
     [SerializeField] private GameObject m_lifelineSegPrefab;
     [SerializeField] private int m_numLinks;
-    [SerializeField] private float m_changeLengthTime;
+    [SerializeField] private AudioClip m_changeLengthSound;
 
     [SerializeField] private List<LifelineSegment> m_activeLifelineSegList = new List<LifelineSegment>();
     [SerializeField] private List<LifelineSegment> m_hiddenLifelineSegList = new List<LifelineSegment>();
@@ -48,6 +48,7 @@ public class Lifeline : MonoBehaviour
 
     public void TryAddLifelineSegment(){
         if( m_activeLifelineSegList.Count != m_numLinks ){
+            AudioSource.PlayClipAtPoint( m_changeLengthSound, m_endHook.transform.position );
             m_activeLifelineSegList.Add( m_hiddenLifelineSegList[0] );
             m_hiddenLifelineSegList.RemoveAt( 0 );
             m_activeLifelineSegList[ m_activeLifelineSegList.Count - 1 ].transform.rotation =  m_activeLifelineSegList[ m_activeLifelineSegList.Count - 2 ].transform.rotation;
@@ -65,6 +66,7 @@ public class Lifeline : MonoBehaviour
     }
     public void TryRemoveLifelineSegment(){
         if( m_activeLifelineSegList.Count >= 3 ){
+            AudioSource.PlayClipAtPoint( m_changeLengthSound, m_endHook.transform.position );
             m_hiddenLifelineSegList.Insert( 0, m_activeLifelineSegList[ m_activeLifelineSegList.Count - 1 ] );
             m_activeLifelineSegList.Remove( m_activeLifelineSegList[ m_activeLifelineSegList.Count - 1 ] );
 

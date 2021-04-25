@@ -11,6 +11,11 @@ public class Attachable : MonoBehaviour
     private bool m_isAttachable;
     public bool IsAttachable { get => m_isAttachable; set => m_isAttachable = value; }
 
+    [SerializeField] private AudioClip m_attachSound;
+    [SerializeField] private AudioClip m_activationSound;
+
+    [SerializeField] private FakePromptController m_prompts;
+
     void Start()
     {
         IsAttachable = true;
@@ -22,6 +27,7 @@ public class Attachable : MonoBehaviour
     private void OnTriggerEnter2D( Collider2D col ) {
         Debug.Log( "Can attach" );
         if( col.name == "AttachRange" ){
+            m_prompts.SetPromptVisible( "promptAttach" );
             col.GetComponentInParent<PlayerController>().AttachableInRange = this;
         }
     }
@@ -29,12 +35,19 @@ public class Attachable : MonoBehaviour
     private void OnTriggerExit2D( Collider2D col ) {
         Debug.Log( "Cannot attach" );
         if( col.name == "AttachRange" ){
+            m_prompts.SetPromptInvisible();
             col.GetComponentInParent<PlayerController>().AttachableInRange = null;
         }
     }
 
-    private void SetAttached(){
+    public void SetAttached(){
         IsAttachable = true;
+        AudioSource.PlayClipAtPoint( m_attachSound, transform.position );
+        AudioSource.PlayClipAtPoint( m_activationSound, transform.position );
+        m_prompts.SetPromptInvisible();
+        MissionControlAlertController.instance.QueueNewAlert( "//: LIFELINE CONNECTION SUCCESSFUL" );
+        MissionControlAlertController.instance.QueueNewAlert( "//: WAKING CLOSEST UNIT" );
         gameObject.SendMessageUpwards( "SetNewLights" );
+        //gameObject.SendMessageUpwards( "LaunchObjectiveFlare" );
     }
 }
