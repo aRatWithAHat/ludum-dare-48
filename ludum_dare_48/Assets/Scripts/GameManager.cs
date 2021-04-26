@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
     private int tries = 1;
     [SerializeField] private int m_nbWrecksUntilBlackbox;
     [SerializeField] private GameObject m_salvagePrefab;
+    [SerializeField] private GameObject m_rock;
     [SerializeField] private GameObject m_blackBoxPrefab;
     [SerializeField] private float m_distanceBetweenWrecksBase;
     [SerializeField] private float m_distanceBetweenWrecksStep;
@@ -24,6 +25,12 @@ public class GameManager : MonoBehaviour
         instance = this;
 
         Player = GameObject.Find("Player").GetComponent<PlayerController>();
+
+        //Rocks
+        for (int i = 0; i < 50; i++)
+        {
+            Instantiate( m_rock, new Vector2(300,300), transform.rotation );
+        }
 
         // Setting Salvage trail
         m_salvagesTrail = new List<Salvage>();

@@ -32,4 +32,8 @@ public class UIController : MonoBehaviour
             }
         }
     }
+
+    private void Quit(){
+        
+    }
 }

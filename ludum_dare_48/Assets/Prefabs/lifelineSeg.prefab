@@ -154,7 +154,7 @@ HingeJoint2D:
   m_GameObject: {fileID: 80408663116874782}
   m_Enabled: 1
   serializedVersion: 4
-  m_EnableCollision: 0
+  m_EnableCollision: 1
   m_ConnectedRigidBody: {fileID: 0}
   m_BreakForce: Infinity
   m_BreakTorque: Infinity
