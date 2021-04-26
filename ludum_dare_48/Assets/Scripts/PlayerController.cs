@@ -210,7 +210,7 @@ public class PlayerController : MonoBehaviour
             Destroy( CurrentEmerLifeline.gameObject );
         }
 
-        if( Input.GetButtonDown( m_fireFlareRef ) && CanFlare ){
+        if( Input.GetButtonDown( m_fireFlareRef ) && CanFlare && !UIController.inst.Pause.activeInHierarchy ){
             StartCoroutine( DeployFlare() );
         }
 

@@ -18,22 +18,27 @@ public class UIController : MonoBehaviour
 
     private void Awake() {
         inst = this;
-
         Pause.SetActive( false );
     }
 
     private void Update() {
         if( Input.GetKeyDown( KeyCode.Escape ) || Input.GetKeyDown(KeyCode.P ) ){
             if( Pause.activeInHierarchy ){
+                Time.timeScale = 1;
                 Pause.SetActive( false );
             }
             else{
+                Time.timeScale = 0;
                 Pause.SetActive( true );
             }
         }
     }
 
-    private void Quit(){
-        
+    public void Resume(){
+        Time.timeScale = 1;
+        Pause.SetActive( false );
+    }
+    public void Quit(){
+        Application.Quit();
     }
 }

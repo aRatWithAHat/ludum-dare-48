@@ -11,12 +11,13 @@ public class DissociateAndFollow : MonoBehaviour
     }
 
     private void Update(){
-        if( targetTransform ){
+        if( !UIController.inst.Pause.activeInHierarchy){
+            if( targetTransform ){
             transform.position = targetTransform.position;
+            }
+            else{
+                Destroy( gameObject );
+            }
         }
-        else{
-            Destroy( gameObject );
-        }
-        
     }
 }
