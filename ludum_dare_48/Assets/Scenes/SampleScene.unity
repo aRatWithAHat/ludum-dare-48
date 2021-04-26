@@ -704,7 +704,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8052c9d63fd904c41a6cdd066b367535, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_nbWrecksUntilBlackbox: 1
+  m_nbWrecksUntilBlackbox: 5
   m_salvagePrefab: {fileID: 8152516983320348215, guid: 0d10219c6aa2a634f8fca2dda9f741bb,
     type: 3}
   m_rock: {fileID: 3860266501731500443, guid: 9624f9f70576a38448658efadc4493dc, type: 3}
